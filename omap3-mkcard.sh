@@ -11,13 +11,15 @@ export LC_ALL=C
 
 DRIVE=/dev/loop0
 
+FILENAME=c1-image.img
+
+rm $FILENAME
+
 # Create blank image file of same size as SD card
-dd if=/dev/zero of=c1-image.img bs=1024 count=0 seek=3813376
+dd if=/dev/zero of=$FILENAME bs=1024 count=0 seek=3813376
 
 # Loop mount image
-losetup $DRIVE c1-image.img
-
-dd if=/dev/zero of=$DRIVE bs=1M count=1
+losetup $DRIVE $FILENAME
 
 SIZE=`fdisk -l $DRIVE | grep Disk | grep bytes | awk '{print $5}'`
 
@@ -105,9 +107,8 @@ mount $PARTITION1 $PARTITION1_MOUNT
 
 cp MLO uEnv.txt u-boot.img am335x-boneblack-bitmainer.dtb uImage.bin initramfs.bin.SD $PARTITION1_MOUNT
 
-until umount $PARTITION1_MOUNT
-do
-	sleep 0.1
+while mountpoint -q $PARTITION1_MOUNT && ! sudo umount $PARTITION1_MOUNT; do
+  sleep 0.1
 done
 
 rm -r $PARTITION1_MOUNT
