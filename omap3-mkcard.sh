@@ -112,6 +112,8 @@ done
 
 rm -r $PARTITION1_MOUNT
 
+losetup -d $DRIVE
+
 if [ -x /sbin/kpartx ]; then
 	kpartx -d -v ${DRIVE}
 fi
